@@ -5,7 +5,7 @@
 
 <meta charset="utf-8">
 
-<title>Dashboard Productivo</title>
+<title>Dashboard Producción</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -32,6 +32,11 @@ border-radius:10px;
 font-size:22px;
 }
 
+.value{
+font-size:40px;
+margin-top:10px;
+}
+
 canvas{
 background:white;
 margin-top:40px;
@@ -43,65 +48,72 @@ margin-top:40px;
 
 <body>
 
-<h1>Dashboard Producción</h1>
+<h1>Dashboard Productivo</h1>
 
 <div class="container">
 
 <div class="card">
 Producción actual
-<div id="prod"></div>
+<div class="value" id="prod"></div>
 </div>
 
 <div class="card">
 Cumplimiento plan
-<div id="cumplimiento"></div>
+<div class="value" id="cumpl"></div>
 </div>
 
 <div class="card">
 No conformes
-<div id="nc"></div>
+<div class="value" id="nc"></div>
 </div>
 
 <div class="card">
 Destrucción
-<div id="destruccion"></div>
+<div class="value" id="dest"></div>
 </div>
 
 </div>
 
-<canvas id="graficoProduccion"></canvas>
+<canvas id="grafico"></canvas>
 
 <script>
 
-const url="https://docs.google.com/spreadsheets/d/e/2PACX-1vSFWYdt4wJCq_hlvJoSbk_NdlsugwZeKQGqUG1vYZV2OQh0qrpjbAhThQj5VE0NDtfnBA2duUr3VDiS/pub?output=csv";
+const sheetID = "PEGAR_ID_DEL_SHEET";
+const hoja = "Hoja1";
+
+const url =
+`https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${hoja}`;
 
 async function cargar(){
 
-const res=await fetch(url);
-const data=await res.text();
+const res = await fetch(url);
+const text = await res.text();
 
-const filas=data.split("\n").map(r=>r.split(","));
+const json = JSON.parse(text.substring(47).slice(0,-2));
 
-const meses=filas[0].slice(1);
+const filas = json.table.rows.map(r => r.c.map(c => c?.v));
 
-const prodReal=filas[1].slice(1)..map(v => parseFloat(v.replace(",", ".")) || 0);
-const prodPlan=filas[2].slice(1)..map(v => parseFloat(v.replace(",", ".")) || 0);
+console.log(filas);
 
-const nc=filas[3].slice(1)..map(v => parseFloat(v.replace(",", ".")) || 0);
-const destruccion=filas[4].slice(1)..map(v => parseFloat(v.replace(",", ".")) || 0);
+const meses = filas[0].slice(1);
 
-const ultimo=prodReal.length-1;
+const prodReal = filas[1].slice(1);
+const prodPlan = filas[2].slice(1);
+const nc = filas[3].slice(1);
+const dest = filas[4].slice(1);
 
-document.getElementById("prod").innerText=prodReal[ultimo];
+let i = prodReal.length-1;
 
-document.getElementById("cumplimiento").innerText=
-(prodReal[ultimo]/prodPlan[ultimo]).toFixed(2);
+document.getElementById("prod").innerText = prodReal[i];
 
-document.getElementById("nc").innerText=nc[ultimo]+"%";
+document.getElementById("cumpl").innerText =
+(prodReal[i]/prodPlan[i]).toFixed(2);
 
-document.getElementById("destruccion").innerText=destruccion[ultimo]+"%";
+document.getElementById("nc").innerText = nc[i] + "%";
 
-new Chart(document.getElementById("graficoProduccion"),{
+document.getElementById("dest").innerText = dest[i] + "%";
+
+new Chart(document.getElementById("grafico"),{
 
 type:"line",
 
@@ -110,17 +122,14 @@ data:{
 labels:meses,
 
 datasets:[
-
 {
 label:"Producción real",
 data:prodReal
 },
-
 {
 label:"Producción plan",
 data:prodPlan
 }
-
 ]
 
 }
@@ -137,15 +146,4 @@ setInterval(cargar,30000);
 
 </body>
 
-
 </html>
-
-
-
-
-
-
-
-
-
-
