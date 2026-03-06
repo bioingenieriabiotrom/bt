@@ -84,11 +84,11 @@ const filas=data.split("\n").map(r=>r.split(","));
 
 const meses=filas[0].slice(1);
 
-const prodReal=filas[1].slice(1).map(Number);
-const prodPlan=filas[2].slice(1).map(Number);
+const prodReal=filas[1].slice(1)..map(v => parseFloat(v.replace(",", ".")) || 0);
+const prodPlan=filas[2].slice(1)..map(v => parseFloat(v.replace(",", ".")) || 0);
 
-const nc=filas[3].slice(1).map(Number);
-const destruccion=filas[4].slice(1).map(Number);
+const nc=filas[3].slice(1)..map(v => parseFloat(v.replace(",", ".")) || 0);
+const destruccion=filas[4].slice(1)..map(v => parseFloat(v.replace(",", ".")) || 0);
 
 const ultimo=prodReal.length-1;
 
@@ -139,6 +139,7 @@ setInterval(cargar,30000);
 
 
 </html>
+
 
 
 
