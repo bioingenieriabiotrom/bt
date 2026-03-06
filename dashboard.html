@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+
+<title>Dashboard Productivo</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+}
+
+.container{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+margin:20px;
+}
+
+.card{
+background:#1e1e1e;
+padding:20px;
+border-radius:10px;
+font-size:22px;
+}
+
+canvas{
+background:white;
+margin-top:40px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Dashboard Producción</h1>
+
+<div class="container">
+
+<div class="card">
+Producción actual
+<div id="prod"></div>
+</div>
+
+<div class="card">
+Cumplimiento plan
+<div id="cumplimiento"></div>
+</div>
+
+<div class="card">
+No conformes
+<div id="nc"></div>
+</div>
+
+<div class="card">
+Destrucción
+<div id="destruccion"></div>
+</div>
+
+</div>
+
+<canvas id="graficoProduccion"></canvas>
+
+<script>
+
+const url="PEGAR_AQUI_URL_CSV";
+
+async function cargar(){
+
+const res=await fetch(url);
+const data=await res.text();
+
+const filas=data.split("\n").map(r=>r.split(","));
+
+const meses=filas[0].slice(1);
+
+const prodReal=filas[1].slice(1).map(Number);
+const prodPlan=filas[2].slice(1).map(Number);
+
+const nc=filas[3].slice(1).map(Number);
+const destruccion=filas[4].slice(1).map(Number);
+
+const ultimo=prodReal.length-1;
+
+document.getElementById("prod").innerText=prodReal[ultimo];
+
+document.getElementById("cumplimiento").innerText=
+(prodReal[ultimo]/prodPlan[ultimo]).toFixed(2);
+
+document.getElementById("nc").innerText=nc[ultimo]+"%";
+
+document.getElementById("destruccion").innerText=destruccion[ultimo]+"%";
+
+new Chart(document.getElementById("graficoProduccion"),{
+
+type:"line",
+
+data:{
+
+labels:meses,
+
+datasets:[
+
+{
+label:"Producción real",
+data:prodReal
+},
+
+{
+label:"Producción plan",
+data:prodPlan
+}
+
+]
+
+}
+
+});
+
+}
+
+cargar();
+
+setInterval(cargar,30000);
+
+</script>
+
+</body>
+
+</html>
